@@ -1,5 +1,14 @@
 <html>
-    <body>
-        Hello Again~
-    </body>
+  <head>
+    <script>
+      async function loadSave ( event ) {
+        const file = event.target.files.item(0);
+        const content = await file.text();
+        console.log(content);
+      }
+    </script>
+  </head>
+  <body>
+    <input type="file" onchange="loadSave(event)"/>
+  </body>
 </html>
