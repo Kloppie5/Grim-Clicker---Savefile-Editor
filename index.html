@@ -1,10 +1,49 @@
 <html>
   <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
     <script>
+      function parseIni ( text, debug = false ) {
+        const out = Object.create(null)
+        let pointer = out
+        let section = null
+        const lines = text.split(/[\r\n]+/g)
+        for ( const line of lines ) {
+          let match = line.match(/^\[([^\]]*)\]$/i)
+          if ( match ) { // Section header
+            if ( debug )
+              console.log(`Section: ${match[1]}`)
+            section = match[1]
+            pointer = out[section] = Object.create(null)
+            continue
+          }
+
+          match = line.match(/^([\w\.\-]+)\s*=\s*(.*)$/)
+          if ( match ) {
+            if ( debug )
+              console.log(`${match[1]}: ${match[2]}`)
+            const key = match[1]
+            const value = match[2].replace(/^"(.*)"$/, '$1')
+            pointer[key] = value
+            continue
+          }
+
+          if ( debug )
+            console.log(`Skipping: ${line}`)
+        }
+        return out
+      }
+      function decryptBase64 ( text ) {
+        return CryptoJS.enc.Base64.parse(text).toString(CryptoJS.enc.Utf8)
+      }
+      function decrypt ( savefile ) {
+        var decrypted = decryptBase64(savefile)
+        var parsed = parseIni(decrypted)
+        console.log(parsed)
+      }
       async function loadSave ( event ) {
-        const file = event.target.files.item(0);
-        const content = await file.text();
-        console.log(content);
+        const file = event.target.files.item(0)
+        const contents = await file.text()
+        decrypt(contents)
       }
     </script>
   </head>
