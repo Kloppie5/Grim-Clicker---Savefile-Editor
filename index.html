@@ -38,16 +38,34 @@
       function decrypt ( savefile ) {
         var decrypted = decryptBase64(savefile)
         var parsed = parseIni(decrypted)
+
+        parsed.SV.galo = decryptBase64(parsed.SV.galo)
+        parsed.SV.galo = parseIni(parsed.SV.galo)
+
+        parsed.SV.save = decryptBase64(parsed.SV.save)
+        parsed.SV.save = parseIni(parsed.SV.save)
+
         console.log(parsed)
       }
       async function loadSave ( event ) {
         const file = event.target.files.item(0)
         const contents = await file.text()
+        document.getElementById('savefile-input').value = contents
+        document.getElementById('savefile-output').value = contents
         decrypt(contents)
+      }
+      function download ( ) {
+        var a = document.createElement("a");
+        a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(document.getElementById('savefile-output').value);
+        a.download = "grim-custom.save";
+        a.click();
       }
     </script>
   </head>
   <body>
-    <input type="file" onchange="loadSave(event)"/>
+    <input type="file" onchange="loadSave(event)"/><br>
+    <textarea id="savefile-input" style="width: 500px; height: 100px;"></textarea><br>
+    <textarea id="savefile-output" style="width: 500px; height: 100px;"></textarea><br>
+    <input type="button" value="Download" onclick="download()"/><br>
   </body>
 </html>
