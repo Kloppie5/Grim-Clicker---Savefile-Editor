@@ -2,6 +2,9 @@
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
     <script>
+      var state = "uninitialized"
+      var savefile = {}
+
       function parseIni ( text, debug = false ) {
         const out = Object.create(null)
         let pointer = out
@@ -32,29 +35,82 @@
         }
         return out
       }
+      function serializeIni ( obj ) {
+        const out = []
+        for ( const [section, data] of Object.entries(obj) ) {
+          out.push(`[${section}]`)
+          for ( const [key, value] of Object.entries(data) ) {
+            out.push(`${key}=${value}`)
+          }
+        }
+        return out.join('\n')
+      }
       function decryptBase64 ( text ) {
         return CryptoJS.enc.Base64.parse(text).toString(CryptoJS.enc.Utf8)
       }
-      function decrypt ( savefile ) {
-        var decrypted = decryptBase64(savefile)
-        var parsed = parseIni(decrypted)
-
-        parsed.SV.galo = decryptBase64(parsed.SV.galo)
-        parsed.SV.galo = parseIni(parsed.SV.galo)
-
-        parsed.SV.save = decryptBase64(parsed.SV.save)
-        parsed.SV.save = parseIni(parsed.SV.save)
-
-        console.log(parsed)
+      function encryptBase64 ( text ) {
+        return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(text))
       }
       async function loadSave ( event ) {
         const file = event.target.files.item(0)
         const contents = await file.text()
-        document.getElementById('savefile-input').value = contents
-        document.getElementById('savefile-output').value = contents
-        decrypt(contents)
+        state = "encrypted"
+        savefile = contents
+        document.getElementById('savefile-input').value = savefile
+        updateFields()
+        updateSavefile()
+      }
+      function decryptSave ( ) {
+        if ( state != "encrypted" )
+          return
+
+        savefile = decryptBase64(savefile)
+        savefile = parseIni(savefile)
+
+        savefile.SV.galo = decryptBase64(savefile.SV.galo)
+        savefile.SV.galo = parseIni(savefile.SV.galo)
+
+        savefile.SV.save = decryptBase64(savefile.SV.save)
+        savefile.SV.save = parseIni(savefile.SV.save)
+
+        state = "decrypted"
+      }
+      function encryptSave ( ) {
+        if ( state != "decrypted" )
+          return
+
+        savefile.SV.galo = serializeIni(savefile.SV.galo)
+        savefile.SV.galo = encryptBase64(savefile.SV.galo)
+
+        savefile.SV.save = serializeIni(savefile.SV.save)
+        savefile.SV.save = encryptBase64(savefile.SV.save)
+
+        savefile = serializeIni(savefile)
+        savefile = encryptBase64(savefile)
+
+        state = "encrypted"
+      }
+      function updateFields ( ) {
+        console.log("updateFields")
+        if ( state == "encrypted" )
+          decryptSave()
+
+        document.getElementById('edit-savefile.SV.save.MAIN.shard').value = savefile.SV.save.MAIN.shard
+      }
+      function updateSavefile ( ) {
+        console.log("updateSavefile")
+        if ( state == "encrypted" )
+          decryptSave()
+
+        savefile.SV.save.MAIN.shard = document.getElementById('edit-savefile.SV.save.MAIN.shard').value
+
+        encryptSave()
+        document.getElementById('savefile-output').value = savefile
       }
       function download ( ) {
+        if ( state == "decrypted" )
+          encryptSave()
+
         var a = document.createElement("a");
         a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(document.getElementById('savefile-output').value);
         a.download = "grim-custom.save";
@@ -64,8 +120,9 @@
   </head>
   <body>
     <input type="file" onchange="loadSave(event)"/><br>
-    <textarea id="savefile-input" style="width: 500px; height: 100px;"></textarea><br>
-    <textarea id="savefile-output" style="width: 500px; height: 100px;"></textarea><br>
+    <textarea id="savefile-input" style="width: 500px; height: 100px;" readonly="readonly"></textarea><br>
+    Shards: <input type="text" id="edit-savefile.SV.save.MAIN.shard" value="0" style="width: 100px;" onchange="updateSavefile()"/><br>
+    <textarea id="savefile-output" style="width: 500px; height: 100px;" readonly="readonly"></textarea><br>
     <input type="button" value="Download" onclick="download()"/><br>
   </body>
 </html>
