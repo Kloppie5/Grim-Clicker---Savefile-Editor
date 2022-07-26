@@ -74,6 +74,7 @@
         savefile.SV.save = parseIni(savefile.SV.save)
 
         state = "decrypted"
+        console.log(savefile.SV.save)
       }
       function encryptSave ( ) {
         if ( state != "decrypted" )
@@ -96,6 +97,12 @@
           decryptSave()
 
         document.getElementById('edit-savefile.SV.save.MAIN.shard').value = savefile.SV.save.MAIN.shard
+        document.getElementById('edit-savefile.SV.save.SOUL.souls').value = savefile.SV.save.SOUL.souls
+        document.getElementById('edit-savefile.SV.save.REM.slitok_iron').value = savefile.SV.save.REM.slitok_iron
+        document.getElementById('edit-savefile.SV.save.REM.slitok_steel').value = savefile.SV.save.REM.slitok_steel
+        document.getElementById('edit-savefile.SV.save.REM.slitok_malahit').value = savefile.SV.save.REM.slitok_malahit
+        document.getElementById('edit-savefile.SV.save.REM.slitok_gold').value = savefile.SV.save.REM.slitok_gold
+        document.getElementById('edit-savefile.SV.save.REM.slitok_darkalloy').value = savefile.SV.save.REM.slitok_darkalloy
       }
       function updateSavefile ( ) {
         console.log("updateSavefile")
@@ -103,6 +110,12 @@
           decryptSave()
 
         savefile.SV.save.MAIN.shard = document.getElementById('edit-savefile.SV.save.MAIN.shard').value
+        savefile.SV.save.SOUL.souls = document.getElementById('edit-savefile.SV.save.SOUL.souls').value
+        savefile.SV.save.REM.slitok_iron = document.getElementById('edit-savefile.SV.save.REM.slitok_iron').value
+        savefile.SV.save.REM.slitok_steel = document.getElementById('edit-savefile.SV.save.REM.slitok_steel').value
+        savefile.SV.save.REM.slitok_malahit = document.getElementById('edit-savefile.SV.save.REM.slitok_malahit').value
+        savefile.SV.save.REM.slitok_gold = document.getElementById('edit-savefile.SV.save.REM.slitok_gold').value
+        savefile.SV.save.REM.slitok_darkalloy = document.getElementById('edit-savefile.SV.save.REM.slitok_darkalloy').value
 
         encryptSave()
         document.getElementById('savefile-output').value = savefile
@@ -121,7 +134,16 @@
   <body>
     <input type="file" onchange="loadSave(event)"/><br>
     <textarea id="savefile-input" style="width: 500px; height: 100px;" readonly="readonly"></textarea><br>
-    Shards: <input type="text" id="edit-savefile.SV.save.MAIN.shard" value="0" style="width: 100px;" onchange="updateSavefile()"/><br>
+    <table>
+        <tr><th></th><th>Value</th></tr>
+        <tr><td>Shards</td><td><input type="text" id="edit-savefile.SV.save.MAIN.shard" value="0" style="width: 100px;" onchange="updateSavefile()"/></td></tr>
+        <tr><td>Souls</td><td><input type="text" id="edit-savefile.SV.save.SOUL.souls" value="0" style="width: 100px;" onchange="updateSavefile()"/></td></tr>
+        <tr><td>Iron</td><td><input type="text" id="edit-savefile.SV.save.REM.slitok_iron" value="0" style="width: 100px;" onchange="updateSavefile()"/></td></tr>
+        <tr><td>Steel</td><td><input type="text" id="edit-savefile.SV.save.REM.slitok_steel" value="0" style="width: 100px;" onchange="updateSavefile()"/></td></tr>
+        <tr><td>Malachite</td><td><input type="text" id="edit-savefile.SV.save.REM.slitok_malahit" value="0" style="width: 100px;" onchange="updateSavefile()"/></td></tr>
+        <tr><td>Gold</td><td><input type="text" id="edit-savefile.SV.save.REM.slitok_gold" value="0" style="width: 100px;" onchange="updateSavefile()"/></td></tr>
+        <tr><td>Dark Alloy</td><td><input type="text" id="edit-savefile.SV.save.REM.slitok_darkalloy" value="0" style="width: 100px;" onchange="updateSavefile()"/></td></tr>
+    </table>
     <textarea id="savefile-output" style="width: 500px; height: 100px;" readonly="readonly"></textarea><br>
     <input type="button" value="Download" onclick="download()"/><br>
   </body>
